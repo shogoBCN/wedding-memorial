@@ -1,3 +1,14 @@
+/**
+ * main.css
+ *
+ * Styles for the Angélica & Thorsten wedding memory site.
+ * Mobile-first layout: cream/navy/rose palette, sticky header, full-viewport hero,
+ * masonry gallery, dialog lightbox, and thank-you card.
+ *
+ * Structure mirrors page sections — search for `/* Hero` etc. when editing.
+ */
+
+/* Global reset and design tokens */
 :root {
   --navy: #1e3a5f;
   --navy-deep: #152a45;
@@ -6,7 +17,6 @@
   --rose: #c9a0a0;
   --rose-soft: #e8d4d4;
   --gold: #c9a962;
-  --sage: #5a7a5a;
   --lavender: #8b7cb8;
   --text: #1a2430;
   --text-muted: #5c6570;
@@ -38,6 +48,7 @@ html {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  /* Respect OS setting — disable decorative motion without breaking layout */
   html {
     scroll-behavior: auto;
   }
@@ -102,6 +113,7 @@ body {
   top: 1rem;
 }
 
+/* Decorative full-page gradient — sits behind all content */
 .page-glow {
   position: fixed;
   inset: 0;
@@ -113,6 +125,7 @@ body {
     radial-gradient(60% 40% at 50% 30%, rgba(201, 160, 160, 0.08), transparent 60%);
 }
 
+/* Thin gold bar under header — width driven by scroll in main.js */
 .scroll-progress {
   position: fixed;
   top: 0;
@@ -170,31 +183,22 @@ body {
 }
 
 .header__brand-meta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.35rem 0.55rem;
-}
-
-.header__brand-date {
-  font-size: 0.68rem;
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  line-height: 1.15;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--text-muted);
+  white-space: nowrap;
 }
 
 .header__brand-tagline {
   font-family: var(--font-display);
-  font-size: 0.8rem;
   font-style: italic;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0.02em;
   color: var(--rose);
-}
-
-.header__brand-tagline::before {
-  content: "·";
-  margin-right: 0.55rem;
-  font-style: normal;
-  color: rgba(30, 58, 95, 0.35);
 }
 
 @media (min-width: 768px) {
@@ -202,12 +206,8 @@ body {
     font-size: 1.55rem;
   }
 
-  .header__brand-date {
-    font-size: 0.72rem;
-  }
-
-  .header__brand-tagline {
-    font-size: 0.88rem;
+  .header__brand-meta {
+    font-size: 0.76rem;
   }
 }
 
@@ -218,6 +218,7 @@ body {
   flex-shrink: 0;
   width: 2.75rem;
   height: 2.75rem;
+  margin-left: auto;
   padding: 0;
   border: none;
   border-radius: var(--radius-sm);
@@ -304,10 +305,6 @@ body {
 
 .header__link.is-active {
   color: var(--gold);
-}
-
-.header__menu-toggle {
-  margin-left: auto;
 }
 
 @media (min-width: 768px) {
@@ -576,6 +573,7 @@ body {
 }
 
 .section--thanks {
+  padding-bottom: clamp(4rem, 10vw, 6rem);
   background: linear-gradient(180deg, var(--cream-dark), var(--rose-soft) 120%);
 }
 
@@ -683,6 +681,7 @@ body {
   color: var(--white);
 }
 
+/* Responsive columns: 2 → 3 → 4 as viewport widens (see media queries below) */
 .gallery-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -765,7 +764,7 @@ body {
   position: relative;
   max-width: var(--max-content);
   margin: 0 auto;
-  padding: 2rem 1.5rem;
+  padding: clamp(2.25rem, 5vw, 3rem) clamp(1.5rem, 4vw, 2.5rem);
   background: var(--white);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
@@ -813,16 +812,17 @@ body {
 }
 
 .thanks-card__quote p {
-  margin: 0 0 1rem;
+  margin: 0 0 1.25rem;
   font-family: var(--font-display);
-  font-size: clamp(1.15rem, 4vw, 1.45rem);
-  line-height: 1.55;
+  font-size: clamp(1.25rem, 4.5vw, 1.6rem);
+  line-height: 1.6;
   color: var(--navy);
 }
 
 .thanks-card__quote p[lang="en"] {
   font-family: var(--font-body);
-  font-size: 1rem;
+  font-size: clamp(1rem, 3vw, 1.1rem);
+  line-height: 1.65;
   color: var(--text-muted);
 }
 
@@ -833,9 +833,9 @@ body {
 }
 
 .thanks-card__sign {
-  margin: 1.5rem 0 0;
+  margin: 2rem 0 0;
   font-family: var(--font-display);
-  font-size: 1.35rem;
+  font-size: clamp(1.35rem, 4vw, 1.55rem);
   font-style: italic;
   color: var(--navy);
 }
@@ -869,16 +869,16 @@ body {
   z-index: 1;
 }
 
+/* Crossfade between photos — class toggled in initializePhotoLightbox() */
 .lightbox__img.is-changing {
   opacity: 0;
 }
 
-/* Lightbox */
+/* Full-screen modal — position:fixed required (dialog defaults break when scrolled) */
 .lightbox {
-  --lightbox-top: 3.5rem;
-  --lightbox-bar: calc(5.25rem + env(safe-area-inset-bottom, 0px));
-  --lightbox-caption: 2.25rem;
-  --lightbox-stage-h: calc(100dvh - var(--lightbox-top) - var(--lightbox-bar) - var(--lightbox-caption));
+  --lightbox-top: 2.75rem;
+  --lightbox-pad-x: max(0.75rem, env(safe-area-inset-left, 0px));
+  --lightbox-pad-bottom: max(0.5rem, env(safe-area-inset-bottom, 0px));
 
   position: fixed;
   inset: 0;
@@ -917,23 +917,19 @@ body {
   justify-content: flex-start;
   padding:
     var(--lightbox-top)
-    max(1rem, env(safe-area-inset-right))
-    var(--lightbox-bar)
-    max(1rem, env(safe-area-inset-left));
+    max(var(--lightbox-pad-x), env(safe-area-inset-right, 0px))
+    var(--lightbox-pad-bottom)
+    var(--lightbox-pad-x);
   touch-action: pan-y pinch-zoom;
 }
 
 .lightbox__stage {
-  flex: 0 0 auto;
+  flex: 1;
+  min-height: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
-  max-width: 42rem;
-  align-self: center;
-  height: var(--lightbox-stage-h);
-  min-height: var(--lightbox-stage-h);
-  max-height: var(--lightbox-stage-h);
   border-radius: var(--radius-md);
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(0, 0, 0, 0.2);
@@ -957,26 +953,25 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: var(--lightbox-caption);
-  margin: 0;
-  font-size: 0.85rem;
-  line-height: 1.4;
+  margin: 0.3rem 0 0;
+  font-size: 0.8rem;
+  line-height: 1.3;
   text-align: center;
   opacity: 0.8;
 }
 
 .lightbox__close {
-  position: fixed;
-  top: calc(0.75rem + env(safe-area-inset-top, 0px));
-  right: 0.75rem;
+  position: absolute;
+  top: calc(0.4rem + env(safe-area-inset-top, 0px));
+  right: max(var(--lightbox-pad-x), env(safe-area-inset-right, 0px));
   z-index: 3;
-  width: 2.75rem;
-  height: 2.75rem;
+  width: 2.25rem;
+  height: 2.25rem;
   border: none;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.12);
   color: var(--white);
-  font-size: 1.75rem;
+  font-size: 1.35rem;
   line-height: 1;
   cursor: pointer;
 }
@@ -991,23 +986,17 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
-  position: fixed;
-  left: 50%;
-  right: auto;
-  bottom: calc(0.85rem + env(safe-area-inset-bottom, 0px));
-  z-index: 3;
-  width: min(calc(100% - 1.5rem), 28rem);
-  padding: 0.75rem 0.85rem;
-  transform: translateX(-50%);
-  border-radius: 999px;
+  flex-shrink: 0;
+  width: 100%;
+  margin-top: 0.4rem;
+  padding-top: 0.5rem;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(21, 42, 69, 0.95);
 }
 
 .lightbox__bar-btn {
   flex: 1;
   max-width: 8.5rem;
-  padding: 0.7rem 0.85rem;
+  padding: 0.55rem 0.75rem;
   border: 1px solid rgba(255, 255, 255, 0.22);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.1);
@@ -1039,32 +1028,20 @@ body {
 
 @media (min-width: 640px) {
   .lightbox {
-    width: min(92vw, 56rem);
-    height: min(94dvh, 52rem);
-    max-width: min(92vw, 56rem);
-    max-height: min(94dvh, 52rem);
+    --lightbox-pad-x: max(0.85rem, env(safe-area-inset-left, 0px));
+    --lightbox-pad-bottom: max(0.65rem, env(safe-area-inset-bottom, 0px));
+
+    width: min(96vw, 72rem);
+    height: min(98dvh, 60rem);
+    max-width: min(96vw, 72rem);
+    max-height: min(98dvh, 60rem);
     margin: auto;
     border-radius: var(--radius-lg);
-    --lightbox-stage-h: calc(min(94dvh, 52rem) - var(--lightbox-top) - var(--lightbox-bar) - var(--lightbox-caption));
-  }
-
-  .lightbox__figure {
-    padding-left: max(1.5rem, env(safe-area-inset-left));
-    padding-right: max(1.5rem, env(safe-area-inset-right));
-  }
-
-  .lightbox__stage {
-    max-width: 46rem;
-  }
-
-  .lightbox__bar {
-    width: min(calc(100% - 3rem), 26rem);
-    bottom: 1.15rem;
   }
 
   .lightbox__close {
-    top: 1rem;
-    right: 1rem;
+    top: calc(0.85rem + env(safe-area-inset-top, 0px));
+    right: max(calc(var(--lightbox-pad-x) + 0.25rem), env(safe-area-inset-right, 0px));
   }
 }
 

@@ -1,3 +1,7 @@
+# wedding — Conda environment for Node.js tooling (optimize, build, Firebase CLI).
+# Create once: conda env create -f environment.yml
+# Activate before npm commands: conda activate wedding
+
 name: wedding
 channels:
   - conda-forge

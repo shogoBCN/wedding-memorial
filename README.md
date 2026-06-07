@@ -11,11 +11,28 @@ No Firestore or Cloud Functions are required — this site is fully static.
 | `assets/` | **Source originals** (heavy JPG + MP4). Local only — gitignored. |
 | `web/assets/images/` | Optimized WebP variants (committed after `optimize:assets`) |
 | `web/assets/video/` | Optimized MP4 + poster (committed after `optimize:assets`) |
-| `web/assets/data/gallery.json` | Chapter layout (hand-edited) |
-| `web/assets/data/media.json` | Generated image/video paths (from `optimize:assets`) |
-| `web/` | HTML, CSS, JS |
+| `web/assets/data/gallery.json` | Chapter layout — image IDs grouped by wedding moment (hand-edited) |
+| `web/assets/data/media.json` | Generated paths and dimensions (from `optimize:assets`) |
+| `web/assets/js/main.js` | Client application (gallery, lightbox, navigation) |
+| `web/assets/js/merge-gallery-manifest.js` | Shared merge logic (browser + build) |
+| `web/` | HTML, CSS, JS source |
 | `dist/` | **Build output** (generated). Deploy this folder. |
-| `scripts/` | `optimize-assets.mjs` (heavy, run once) + `build-site.mjs` (fast) |
+| `scripts/` | Asset optimization + production build |
+
+## Code overview
+
+| File | Role |
+| --- | --- |
+| `web/index.html` | Page structure: hero, video, gallery shell, thank-you, lightbox `<dialog>` |
+| `web/assets/js/main.js` | Loads manifests, renders gallery/lightbox, nav, scroll effects |
+| `web/assets/js/merge-gallery-manifest.js` | Joins `gallery.json` image IDs with `media.json` paths |
+| `web/assets/css/main.css` | Mobile-first styles and design tokens |
+| `scripts/optimize-assets.mjs` | One-time heavy processing (sharp + ffmpeg) |
+| `scripts/build-site.mjs` | Fast copy to `dist/`, merge manifests, cache-bust HTML |
+| `scripts/lib/media-config.mjs` | Shared paths and responsive image width constants |
+| `scripts/lib/merge-gallery.mjs` | Re-exports browser merge module for Node build |
+
+**Local dev** merges manifests in the browser. **Production** (`dist/`) ships a pre-merged `gallery.json` so visitors need one JSON fetch.
 
 ## Two-step workflow
 
@@ -98,8 +115,24 @@ Firebase Hosting → Add custom domain → set DNS as shown in the console.
 
 `robots.txt` disallows indexing (`noindex` on HTML too) — adjust if you want the site public.
 
-## Mobile-first
+## Analytics (Google Analytics 4)
+
+| GA admin field | Value | In code? |
+| --- | --- | --- |
+| Stream name | maryi thor wedding | — (admin only) |
+| Measurement ID | `G-QJ8JVNXVEH` | Yes — `index.html` gtag + `main.js` |
+| Stream ID | `15020149553` | No — not used by gtag (admin only) |
+| Stream URL | your live site URL | Set in GA admin when deployed |
+
+The gtag snippet loads from `googletagmanager.com`. CSP allows Google Analytics scripts and beacons. Hash navigation (`#historia`, `#galeria`, …) sends virtual page views via `main.js`.
+
+After deploy, verify in GA **Reports → Realtime** or [Tag Assistant](https://tagassistant.google.com/).
+
+`noindex` / `robots.txt` block search engines only — they do not affect Analytics.
+
+## Mobile-first behaviour
 
 - 2-column gallery on phones → 3 → 4 on larger screens
 - Collapsible nav below 768px
 - Video `preload="metadata"`; lazy-loaded gallery thumbnails (480w WebP)
+- Lightbox: fixed full-screen dialog, swipe + keyboard navigation, chapter-aware order

@@ -1,2 +1,4 @@
+# Disallow crawlers — site is private (matches noindex in index.html).
+
 User-agent: *
 Disallow: /

@@ -1,11 +1,28 @@
+<!--
+  index.html — Angélica & Thorsten wedding memory site (static, bilingual ES/EN).
+
+  Sections: hero · story video · filterable gallery · thank-you card · photo lightbox dialog.
+  Gallery grid and filters are rendered by assets/js/main.js from gallery.json + media.json.
+  Deploy the built dist/ folder (npm run build), not this file alone.
+-->
 <!DOCTYPE html>
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Google Analytics 4 — measurement ID from analytics.google.com property settings -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QJ8JVNXVEH"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "G-QJ8JVNXVEH");
+    </script>
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; base-uri 'self'; form-action 'none'; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com; style-src 'self' https://fonts.googleapis.com; script-src 'self'; connect-src 'self'; media-src 'self'"
+      content="default-src 'self'; base-uri 'self'; form-action 'none'; img-src 'self' data: https://www.google-analytics.com https://www.googletagmanager.com; font-src 'self' https://fonts.gstatic.com; style-src 'self' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com; media-src 'self'"
     />
     <meta name="robots" content="noindex, nofollow" />
     <meta
@@ -13,6 +30,8 @@
       content="Angélica &amp; Thorsten — 18 de abril de 2026. Nuestra historia y recuerdos de nuestra boda."
     />
     <title>Angélica &amp; Thorsten · 18.04.2026</title>
+    <link rel="icon" href="assets/icons/icons8-favorite-64.png" type="image/png" sizes="64x64" />
+    <link rel="apple-touch-icon" href="assets/icons/icons8-favorite-64.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -26,14 +45,14 @@
     <div class="page-glow" aria-hidden="true"></div>
     <div class="scroll-progress" aria-hidden="true"></div>
 
-    <header class="header" data-header>
+    <header class="header">
       <div class="header__inner">
         <a class="header__brand" href="#inicio">
           <span class="header__brand-names">
             Angélica <span class="header__brand-amp">&amp;</span> Thorsten
           </span>
           <span class="header__brand-meta">
-            <span class="header__brand-date">18 · Abril · 2026</span>
+            18 · Abril · 2026 ·
             <span class="header__brand-tagline">Better together</span>
           </span>
         </a>
@@ -92,7 +111,7 @@
             <p class="section__subtitle">Our story</p>
           </header>
 
-          <div class="video-player" data-video-player>
+          <div class="video-player">
             <video
               class="video-player__video"
               data-story-video
@@ -122,16 +141,24 @@
 
       <section id="gracias" class="section section--thanks" aria-labelledby="titulo-gracias">
         <div class="section__inner reveal" data-reveal>
+          <header class="section__header">
+            <div class="section-ornament" aria-hidden="true"><span></span></div>
+            <h2 id="titulo-gracias" class="section__title">Gracias</h2>
+            <p class="section__subtitle">Thank you</p>
+          </header>
+
           <div class="thanks-card">
             <div class="thanks-card__glow" aria-hidden="true"></div>
             <p class="thanks-card__date">18. April 2026</p>
             <blockquote class="thanks-card__quote">
               <p lang="es">
-                Gracias a todos por estar aquí y compartir este momento. De verdad significa muchísimo
-                para nosotros.
+                Gracias a todos por estar aquí, por viajar, por celebrar con nosotros y por llenar
+                este día de alegría. Compartir este momento con vosotros significa más de lo que las
+                palabras pueden decir.
               </p>
               <p lang="en">
-                Thank you all for being here and sharing this moment. It truly means the world to us.
+                Thank you all for being here - for traveling, celebrating with us, and filling this day
+                with so much joy. Sharing this moment with you means more than words can say.
                 <em>We love you.</em>
               </p>
             </blockquote>
@@ -147,24 +174,24 @@
     </footer>
 
     <dialog class="lightbox" data-lightbox aria-label="Foto ampliada">
-      <button type="button" class="lightbox__close" data-lightbox-close aria-label="Cerrar">
-        <span aria-hidden="true">&times;</span>
-      </button>
       <figure class="lightbox__figure" data-lightbox-swipe>
+        <button type="button" class="lightbox__close" data-lightbox-close aria-label="Cerrar">
+          <span aria-hidden="true">&times;</span>
+        </button>
         <div class="lightbox__stage">
           <img class="lightbox__img" data-lightbox-img alt="" width="1600" height="1067" />
         </div>
         <figcaption class="lightbox__caption" data-lightbox-caption></figcaption>
+        <div class="lightbox__bar" aria-label="Navegación de fotos">
+          <button type="button" class="lightbox__bar-btn" data-lightbox-prev-bar aria-label="Foto anterior">
+            ‹ Anterior
+          </button>
+          <span class="lightbox__counter" data-lightbox-counter aria-live="polite"></span>
+          <button type="button" class="lightbox__bar-btn" data-lightbox-next-bar aria-label="Foto siguiente">
+            Siguiente ›
+          </button>
+        </div>
       </figure>
-      <div class="lightbox__bar" aria-label="Navegación de fotos">
-        <button type="button" class="lightbox__bar-btn" data-lightbox-prev-bar aria-label="Foto anterior">
-          ‹ Anterior
-        </button>
-        <span class="lightbox__counter" data-lightbox-counter aria-live="polite"></span>
-        <button type="button" class="lightbox__bar-btn" data-lightbox-next-bar aria-label="Foto siguiente">
-          Siguiente ›
-        </button>
-      </div>
     </dialog>
 
     <script src="assets/js/main.js" type="module"></script>

@@ -1,104 +1,155 @@
 /**
- * One-time / on-demand asset optimization.
- * Reads heavy originals from assets/, writes web-ready files into web/assets/.
- * Re-run only when you add or replace photos or video.
+ * optimize-assets.mjs
+ *
+ * Heavy, infrequent pipeline: reads photographer originals from `assets/`,
+ * writes optimized WebP images and H.264 video into `web/assets/`, and generates
+ * `web/assets/data/media.json`.
+ *
+ * Re-run when photos or video change: `npm run optimize:assets`
+ * Requires: sharp (npm), ffmpeg (system PATH).
  */
-import { mkdir, readdir, readFile, rm, stat, writeFile } from "node:fs/promises";
+
+import { mkdir, readdir, rm, stat, writeFile } from "node:fs/promises";
 import { join, dirname, basename, extname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawn } from "node:child_process";
 import sharp from "sharp";
 import {
-  IMAGE_WIDTHS,
-  IMAGE_WIDTH_XL,
-  SOURCE_IMAGES_DIR,
-  SOURCE_VIDEO_PATH,
-  WEB_IMAGES_DIR,
-  WEB_VIDEO_DIR,
+  RESPONSIVE_IMAGE_WIDTHS,
+  EXTRA_LARGE_IMAGE_WIDTH,
+  SOURCE_IMAGES_DIRECTORY,
+  SOURCE_VIDEO_FILE_PATH,
+  WEB_IMAGES_DIRECTORY,
+  WEB_VIDEO_DIRECTORY,
   MEDIA_MANIFEST_PATH,
 } from "./lib/media-config.mjs";
 
-const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-const sourceImages = join(root, SOURCE_IMAGES_DIR);
-const sourceVideo = join(root, SOURCE_VIDEO_PATH);
-const outImages = join(root, WEB_IMAGES_DIR);
-const outVideo = join(root, WEB_VIDEO_DIR);
-const mediaManifestPath = join(root, MEDIA_MANIFEST_PATH);
+const repositoryRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
+const sourceImagesDirectory = join(repositoryRoot, SOURCE_IMAGES_DIRECTORY);
+const sourceVideoFilePath = join(repositoryRoot, SOURCE_VIDEO_FILE_PATH);
+const webImagesOutputDirectory = join(repositoryRoot, WEB_IMAGES_DIRECTORY);
+const webVideoOutputDirectory = join(repositoryRoot, WEB_VIDEO_DIRECTORY);
+const mediaManifestFilePath = join(repositoryRoot, MEDIA_MANIFEST_PATH);
 
-function formatBytes(n) {
-  if (n < 1024) return `${n} B`;
-  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
-  return `${(n / (1024 * 1024)).toFixed(1)} MB`;
+/**
+ * @param {number} byteCount
+ * @returns {string}
+ */
+function formatByteCountAsHumanReadable(byteCount) {
+  if (byteCount < 1024) return `${byteCount} B`;
+  if (byteCount < 1024 * 1024) return `${(byteCount / 1024).toFixed(1)} KB`;
+  return `${(byteCount / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-async function fileSize(path) {
+/**
+ * @param {string} filePath
+ * @returns {Promise<number>}
+ */
+async function getFileSizeInBytes(filePath) {
   try {
-    return (await stat(path)).size;
+    return (await stat(filePath)).size;
   } catch {
     return 0;
   }
 }
 
-async function isFresh(outputPath, inputPath) {
+/**
+ * Skip re-encoding when the output file is newer than the source (incremental builds).
+ *
+ * @param {string} outputPath
+ * @param {string} inputPath
+ * @returns {Promise<boolean>}
+ */
+async function isOutputNewerThanSource(outputPath, inputPath) {
   try {
-    const [outStat, inStat] = await Promise.all([stat(outputPath), stat(inputPath)]);
-    return outStat.mtimeMs >= inStat.mtimeMs;
+    const [outputStats, inputStats] = await Promise.all([stat(outputPath), stat(inputPath)]);
+    return outputStats.mtimeMs >= inputStats.mtimeMs;
   } catch {
     return false;
   }
 }
 
-function runCommand(cmd, args) {
+/**
+ * @param {string} command
+ * @param {string[]} argumentsList
+ * @returns {Promise<void>}
+ */
+function runShellCommand(command, argumentsList) {
   return new Promise((resolve, reject) => {
-    const child = spawn(cmd, args, { stdio: "inherit" });
-    child.on("error", reject);
-    child.on("close", (code) => {
-      if (code === 0) resolve();
-      else reject(new Error(`${cmd} exited with code ${code}`));
+    const childProcess = spawn(command, argumentsList, { stdio: "inherit" });
+    childProcess.on("error", reject);
+    childProcess.on("close", (exitCode) => {
+      if (exitCode === 0) resolve();
+      else reject(new Error(`${command} exited with code ${exitCode}`));
     });
   });
 }
 
-async function optimizeImage(inputPath, stem, outDir) {
-  const meta = await sharp(inputPath).metadata();
-  const widths = [...IMAGE_WIDTHS];
-  if ((meta.width ?? 0) > IMAGE_WIDTH_XL) widths.push(IMAGE_WIDTH_XL);
-  else if ((meta.width ?? 0) > 1600 && !widths.includes(meta.width)) widths.push(meta.width);
+/**
+ * Generate responsive WebP variants for one JPEG and return manifest metadata.
+ *
+ * @param {string} inputFilePath
+ * @param {string} fileNameStem - e.g. "IMG_5637"
+ * @param {string} outputDirectory
+ */
+async function optimizePhotographToWebpVariants(inputFilePath, fileNameStem, outputDirectory) {
+  const imageMetadata = await sharp(inputFilePath).metadata();
+  const targetWidths = [...RESPONSIVE_IMAGE_WIDTHS];
 
-  const variants = {};
-  let totalOut = 0;
-
-  for (const w of widths) {
-    const outName = `${stem}-${w}.webp`;
-    const outPath = join(outDir, outName);
-    const targetW = Math.min(w, meta.width ?? w);
-
-    if (!(await isFresh(outPath, inputPath))) {
-      await sharp(inputPath)
-        .rotate()
-        .resize({ width: targetW, withoutEnlargement: true })
-        .webp({ quality: 82, effort: 4 })
-        .toFile(outPath);
-      console.info(`  wrote ${outName}`);
-    }
-
-    totalOut += await fileSize(outPath);
-    variants[String(targetW)] = `assets/images/${outName}`;
+  if ((imageMetadata.width ?? 0) > EXTRA_LARGE_IMAGE_WIDTH) {
+    targetWidths.push(EXTRA_LARGE_IMAGE_WIDTH);
+  } else if (
+    (imageMetadata.width ?? 0) > 1600 &&
+    !targetWidths.includes(imageMetadata.width)
+  ) {
+    targetWidths.push(imageMetadata.width);
   }
 
-  return { width: meta.width, height: meta.height, variants, bytes: totalOut };
+  const variantPathsByWidth = {};
+  let totalOutputBytes = 0;
+
+  for (const targetWidth of targetWidths) {
+    const outputFileName = `${fileNameStem}-${targetWidth}.webp`;
+    const outputFilePath = join(outputDirectory, outputFileName);
+    const actualWidth = Math.min(targetWidth, imageMetadata.width ?? targetWidth);
+
+    if (!(await isOutputNewerThanSource(outputFilePath, inputFilePath))) {
+      await sharp(inputFilePath)
+        .rotate() // honour EXIF orientation from camera
+        .resize({ width: actualWidth, withoutEnlargement: true })
+        .webp({ quality: 82, effort: 4 })
+        .toFile(outputFilePath);
+      console.info(`  wrote ${outputFileName}`);
+    }
+
+    totalOutputBytes += await getFileSizeInBytes(outputFilePath);
+    variantPathsByWidth[String(actualWidth)] = `assets/images/${outputFileName}`;
+  }
+
+  return {
+    width: imageMetadata.width,
+    height: imageMetadata.height,
+    variants: variantPathsByWidth,
+    bytes: totalOutputBytes,
+  };
 }
 
-async function optimizeVideo(inputPath, outDir) {
-  const outVideoFile = join(outDir, "story-720.mp4");
-  const outPoster = join(outDir, "story-poster.webp");
+/**
+ * Transcode story video to 720p H.264 and extract a WebP poster frame.
+ *
+ * @param {string} inputVideoPath
+ * @param {string} outputDirectory
+ */
+async function optimizeStoryVideoForWeb(inputVideoPath, outputDirectory) {
+  const optimizedVideoPath = join(outputDirectory, "story-720.mp4");
+  const posterWebpPath = join(outputDirectory, "story-poster.webp");
 
-  if (!(await isFresh(outVideoFile, inputPath))) {
+  if (!(await isOutputNewerThanSource(optimizedVideoPath, inputVideoPath))) {
     console.info("  encoding story-720.mp4 (720p H.264)…");
-    await runCommand("ffmpeg", [
+    await runShellCommand("ffmpeg", [
       "-y",
       "-i",
-      inputPath,
+      inputVideoPath,
       "-c:v",
       "libx264",
       "-crf",
@@ -113,89 +164,101 @@ async function optimizeVideo(inputPath, outDir) {
       "128k",
       "-movflags",
       "+faststart",
-      outVideoFile,
+      optimizedVideoPath,
     ]);
   }
 
-  const posterJpg = join(outDir, "story-poster.jpg");
-  if (!(await isFresh(outPoster, inputPath))) {
+  const temporaryPosterJpegPath = join(outputDirectory, "story-poster.jpg");
+  if (!(await isOutputNewerThanSource(posterWebpPath, inputVideoPath))) {
     console.info("  extracting story-poster.webp…");
-    await runCommand("ffmpeg", [
+    await runShellCommand("ffmpeg", [
       "-y",
       "-ss",
       "00:00:08",
       "-i",
-      inputPath,
+      inputVideoPath,
       "-frames:v",
       "1",
       "-q:v",
       "2",
       "-update",
       "1",
-      posterJpg,
+      temporaryPosterJpegPath,
     ]);
-    await sharp(posterJpg).rotate().webp({ quality: 85 }).toFile(outPoster);
-    await rm(posterJpg, { force: true });
+    await sharp(temporaryPosterJpegPath).rotate().webp({ quality: 85 }).toFile(posterWebpPath);
+    await rm(temporaryPosterJpegPath, { force: true });
   }
 
   return {
     src: "assets/video/story-720.mp4",
     poster: "assets/video/story-poster.webp",
-    bytes: (await fileSize(outVideoFile)) + (await fileSize(outPoster)),
+    bytes:
+      (await getFileSizeInBytes(optimizedVideoPath)) +
+      (await getFileSizeInBytes(posterWebpPath)),
   };
 }
 
 console.info("optimize-assets: images…");
-await mkdir(outImages, { recursive: true });
+await mkdir(webImagesOutputDirectory, { recursive: true });
 
-let entries;
+let sourceDirectoryEntries;
 try {
-  entries = await readdir(sourceImages);
+  sourceDirectoryEntries = await readdir(sourceImagesDirectory);
 } catch {
   throw new Error("optimize-assets: missing assets/images/ — add photographer originals there.");
 }
 
-const jpgs = entries.filter((f) => /\.jpe?g$/i.test(f)).sort();
-const images = {};
-let imgSourceBytes = 0;
-let imgOutputBytes = 0;
+const jpegSourceFileNames = sourceDirectoryEntries.filter((fileName) => /\.jpe?g$/i.test(fileName)).sort();
+const imagesManifest = {};
+let totalSourceImageBytes = 0;
+let totalOutputImageBytes = 0;
 
-for (const file of jpgs) {
-  const inputPath = join(sourceImages, file);
-  const stem = basename(file, extname(file));
-  imgSourceBytes += await fileSize(inputPath);
-  console.info(`→ ${file}`);
-  const result = await optimizeImage(inputPath, stem, outImages);
-  imgOutputBytes += result.bytes;
-  images[stem] = {
-    width: result.width,
-    height: result.height,
-    variants: result.variants,
+for (const jpegFileName of jpegSourceFileNames) {
+  const inputFilePath = join(sourceImagesDirectory, jpegFileName);
+  const fileNameStem = basename(jpegFileName, extname(jpegFileName));
+
+  totalSourceImageBytes += await getFileSizeInBytes(inputFilePath);
+  console.info(`→ ${jpegFileName}`);
+
+  const optimizationResult = await optimizePhotographToWebpVariants(
+    inputFilePath,
+    fileNameStem,
+    webImagesOutputDirectory
+  );
+
+  totalOutputImageBytes += optimizationResult.bytes;
+  imagesManifest[fileNameStem] = {
+    width: optimizationResult.width,
+    height: optimizationResult.height,
+    variants: optimizationResult.variants,
   };
 }
 
 console.info(
-  `optimize-assets: images ${formatBytes(imgSourceBytes)} → ${formatBytes(imgOutputBytes)} (${jpgs.length} photos)`
+  `optimize-assets: images ${formatByteCountAsHumanReadable(totalSourceImageBytes)} → ${formatByteCountAsHumanReadable(totalOutputImageBytes)} (${jpegSourceFileNames.length} photos)`
 );
 
-let video = null;
+let videoManifest = null;
 console.info("optimize-assets: video…");
+
 try {
-  const videoInSize = await fileSize(sourceVideo);
-  await mkdir(outVideo, { recursive: true });
-  video = await optimizeVideo(sourceVideo, outVideo);
-  console.info(`optimize-assets: video ${formatBytes(videoInSize)} → ${formatBytes(video.bytes)}`);
-} catch (err) {
-  console.warn("optimize-assets: video skipped —", err.message);
-  console.warn("  Requires ffmpeg and", SOURCE_VIDEO_PATH);
+  const sourceVideoBytes = await getFileSizeInBytes(sourceVideoFilePath);
+  await mkdir(webVideoOutputDirectory, { recursive: true });
+  videoManifest = await optimizeStoryVideoForWeb(sourceVideoFilePath, webVideoOutputDirectory);
+  console.info(
+    `optimize-assets: video ${formatByteCountAsHumanReadable(sourceVideoBytes)} → ${formatByteCountAsHumanReadable(videoManifest.bytes)}`
+  );
+} catch (videoError) {
+  console.warn("optimize-assets: video skipped —", videoError.message);
+  console.warn("  Requires ffmpeg and", SOURCE_VIDEO_FILE_PATH);
 }
 
-const manifest = {
+const mediaManifest = {
   generatedAt: new Date().toISOString(),
-  images,
-  video,
+  images: imagesManifest,
+  video: videoManifest,
 };
 
-await mkdir(dirname(mediaManifestPath), { recursive: true });
-await writeFile(mediaManifestPath, JSON.stringify(manifest, null, 2));
+await mkdir(dirname(mediaManifestFilePath), { recursive: true });
+await writeFile(mediaManifestFilePath, JSON.stringify(mediaManifest, null, 2));
 console.info(`optimize-assets: wrote ${MEDIA_MANIFEST_PATH}`);
