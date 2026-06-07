@@ -1,0 +1,108 @@
+{
+  "hero": "IMG_5637",
+  "chapters": [
+    {
+      "id": "prep",
+      "titleEs": "Antes de la fiesta",
+      "titleEn": "Getting ready",
+      "images": [
+        "IMG_5410",
+        "IMG_5414",
+        "IMG_5418",
+        "IMG_5422",
+        "IMG_5425",
+        "IMG_5428",
+        "IMG_5433",
+        "IMG_5434",
+        "IMG_5441",
+        "IMG_5449"
+      ]
+    },
+    {
+      "id": "ceremony",
+      "titleEs": "La ceremonia",
+      "titleEn": "The ceremony",
+      "images": [
+        "IMG_5480",
+        "IMG_5481",
+        "IMG_5487",
+        "IMG_5509",
+        "IMG_5514",
+        "IMG_5523",
+        "IMG_5535",
+        "IMG_5542",
+        "IMG_5547",
+        "IMG_5553",
+        "IMG_5554",
+        "IMG_5558",
+        "IMG_5559",
+        "IMG_5563"
+      ]
+    },
+    {
+      "id": "celebration",
+      "titleEs": "Celebración",
+      "titleEn": "Celebration",
+      "images": [
+        "IMG_5583",
+        "IMG_5589",
+        "IMG_5592",
+        "IMG_5596",
+        "IMG_5601",
+        "IMG_5603",
+        "IMG_5605",
+        "IMG_5612",
+        "IMG_5618",
+        "IMG_5633",
+        "IMG_5637",
+        "IMG_5643",
+        "IMG_5647",
+        "IMG_5650",
+        "IMG_5657",
+        "IMG_5666",
+        "IMG_5669"
+      ]
+    },
+    {
+      "id": "party",
+      "titleEs": "Fiesta",
+      "titleEn": "Party time",
+      "images": [
+        "IMG_5674",
+        "IMG_5678",
+        "IMG_5679",
+        "IMG_5685",
+        "IMG_5691",
+        "IMG_5694",
+        "IMG_5700",
+        "IMG_5703",
+        "IMG_5709",
+        "IMG_5718",
+        "IMG_5725",
+        "IMG_5728"
+      ]
+    },
+    {
+      "id": "family",
+      "titleEs": "Familia y amigos",
+      "titleEn": "Family & friends",
+      "images": [
+        "IMG_5732",
+        "IMG_5733",
+        "IMG_5739",
+        "IMG_5740",
+        "IMG_5743",
+        "IMG_5744",
+        "IMG_5746",
+        "IMG_5752",
+        "IMG_5753",
+        "IMG_5756",
+        "IMG_5760",
+        "IMG_5772",
+        "IMG_5775",
+        "IMG_5777",
+        "IMG_5781"
+      ]
+    }
+  ]
+}

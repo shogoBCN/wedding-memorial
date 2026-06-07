@@ -1,0 +1,5 @@
+name: wedding
+channels:
+  - conda-forge
+dependencies:
+  - nodejs >=20,<23

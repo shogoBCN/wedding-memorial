@@ -1,0 +1,20 @@
+# Build output (generated; deploy this folder)
+dist/
+
+# Heavy photographer originals — keep locally, run npm run optimize:assets
+/assets/
+
+# Dependencies
+node_modules/
+
+# Firebase CLI local cache
+.firebase/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# OS / editor
+.DS_Store
+*.log

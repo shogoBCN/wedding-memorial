@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; base-uri 'self'; form-action 'none'; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com; style-src 'self' https://fonts.googleapis.com; script-src 'self'; connect-src 'self'; media-src 'self'"
+    />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta
+      name="description"
+      content="Angélica &amp; Thorsten — 18 de abril de 2026. Nuestra historia y recuerdos de nuestra boda."
+    />
+    <title>Angélica &amp; Thorsten · 18.04.2026</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Source+Sans+3:ital,wght@0,400;0,500;0,600;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="assets/css/main.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#contenido">Ir al contenido</a>
+    <div class="page-glow" aria-hidden="true"></div>
+    <div class="scroll-progress" aria-hidden="true"></div>
+
+    <header class="header" data-header>
+      <div class="header__inner">
+        <a class="header__brand" href="#inicio">
+          <span class="header__brand-names">
+            Angélica <span class="header__brand-amp">&amp;</span> Thorsten
+          </span>
+          <span class="header__brand-meta">
+            <span class="header__brand-date">18 · Abril · 2026</span>
+            <span class="header__brand-tagline">Better together</span>
+          </span>
+        </a>
+        <nav id="site-nav" class="header__nav" data-nav aria-label="Principal">
+          <a class="header__link" href="#inicio" data-nav-link>Inicio</a>
+          <a class="header__link" href="#historia" data-nav-link>Historia</a>
+          <a class="header__link" href="#galeria" data-nav-link>Galería</a>
+          <a class="header__link" href="#gracias" data-nav-link>Gracias</a>
+        </nav>
+        <button
+          type="button"
+          class="header__menu-toggle"
+          data-nav-toggle
+          aria-expanded="false"
+          aria-controls="site-nav"
+        >
+          <span class="visually-hidden">Menú</span>
+          <span class="header__menu-icon" aria-hidden="true"></span>
+        </button>
+      </div>
+    </header>
+
+    <main id="contenido" class="main">
+      <section id="inicio" class="hero" aria-label="Angélica y Thorsten">
+        <div class="hero__media" data-hero-media>
+          <div class="hero__media-placeholder" aria-hidden="true"></div>
+        </div>
+        <div class="hero__lights" aria-hidden="true">
+          <span class="hero__light"></span>
+          <span class="hero__light"></span>
+          <span class="hero__light"></span>
+          <span class="hero__light"></span>
+          <span class="hero__light"></span>
+          <span class="hero__light"></span>
+          <span class="hero__light"></span>
+          <span class="hero__light"></span>
+        </div>
+        <div class="hero__overlay"></div>
+        <div class="hero__content reveal" data-reveal>
+          <p class="hero__eyebrow">Nuestra boda · Our wedding</p>
+          <h1 class="hero__title">Angélica <span class="hero__amp">&amp;</span> Thorsten</h1>
+          <p class="hero__date">18 · Abril · 2026</p>
+          <p class="hero__tagline">Better together</p>
+          <a class="hero__cta" href="#historia">Nuestra historia</a>
+          <a class="hero__scroll" href="#historia" aria-label="Desplazar a nuestra historia">
+            <span class="hero__scroll-icon" aria-hidden="true"></span>
+          </a>
+        </div>
+      </section>
+
+      <section id="historia" class="section section--video" aria-labelledby="titulo-historia">
+        <div class="section__inner reveal" data-reveal>
+          <header class="section__header section__header--compact">
+            <div class="section-ornament" aria-hidden="true"><span></span></div>
+            <h2 id="titulo-historia" class="section__title">Nuestra historia</h2>
+            <p class="section__subtitle">Our story</p>
+          </header>
+
+          <div class="video-player" data-video-player>
+            <video
+              class="video-player__video"
+              data-story-video
+              controls
+              playsinline
+              preload="metadata"
+              poster="assets/video/story-poster.webp"
+            >
+              <source src="assets/video/story-720.mp4" type="video/mp4" />
+            </video>
+          </div>
+        </div>
+      </section>
+
+      <section id="galeria" class="section section--gallery" aria-labelledby="titulo-galeria">
+        <div class="section__inner reveal" data-reveal>
+          <header class="section__header section__header--compact">
+            <div class="section-ornament" aria-hidden="true"><span></span></div>
+            <h2 id="titulo-galeria" class="section__title">El día</h2>
+            <p class="section__subtitle">The wedding day</p>
+          </header>
+
+          <div class="gallery-filters" data-gallery-filters role="tablist" aria-label="Filtrar galería"></div>
+          <div class="gallery-grid" data-gallery-grid role="list"></div>
+        </div>
+      </section>
+
+      <section id="gracias" class="section section--thanks" aria-labelledby="titulo-gracias">
+        <div class="section__inner reveal" data-reveal>
+          <div class="thanks-card">
+            <div class="thanks-card__glow" aria-hidden="true"></div>
+            <p class="thanks-card__date">18. April 2026</p>
+            <blockquote class="thanks-card__quote">
+              <p lang="es">
+                Gracias a todos por estar aquí y compartir este momento. De verdad significa muchísimo
+                para nosotros.
+              </p>
+              <p lang="en">
+                Thank you all for being here and sharing this moment. It truly means the world to us.
+                <em>We love you.</em>
+              </p>
+            </blockquote>
+            <p class="thanks-card__sign">Angélica &amp; Thorsten</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p class="footer__love" aria-hidden="true">LOVE</p>
+      <p class="footer__copy">Angélica &amp; Thorsten · 18.04.2026</p>
+    </footer>
+
+    <dialog class="lightbox" data-lightbox aria-label="Foto ampliada">
+      <button type="button" class="lightbox__close" data-lightbox-close aria-label="Cerrar">
+        <span aria-hidden="true">&times;</span>
+      </button>
+      <figure class="lightbox__figure" data-lightbox-swipe>
+        <div class="lightbox__stage">
+          <img class="lightbox__img" data-lightbox-img alt="" width="1600" height="1067" />
+        </div>
+        <figcaption class="lightbox__caption" data-lightbox-caption></figcaption>
+      </figure>
+      <div class="lightbox__bar" aria-label="Navegación de fotos">
+        <button type="button" class="lightbox__bar-btn" data-lightbox-prev-bar aria-label="Foto anterior">
+          ‹ Anterior
+        </button>
+        <span class="lightbox__counter" data-lightbox-counter aria-live="polite"></span>
+        <button type="button" class="lightbox__bar-btn" data-lightbox-next-bar aria-label="Foto siguiente">
+          Siguiente ›
+        </button>
+      </div>
+    </dialog>
+
+    <script src="assets/js/main.js" type="module"></script>
+  </body>
+</html>

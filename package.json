@@ -1,0 +1,22 @@
+{
+  "name": "wedding-memorial",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "optimize:assets": "node scripts/optimize-assets.mjs",
+    "build": "node scripts/build-site.mjs",
+    "serve": "npx --yes serve web",
+    "serve:dist": "npx --yes serve dist",
+    "preview": "npm run build && npx --yes serve dist",
+    "firebase": "firebase",
+    "deploy": "npm run build && firebase deploy",
+    "deploy:hosting": "npm run build && firebase deploy --only hosting"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "firebase-tools": "^13.29.0",
+    "sharp": "^0.33.5"
+  }
+}
