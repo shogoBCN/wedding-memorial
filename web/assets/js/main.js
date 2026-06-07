@@ -107,7 +107,7 @@ function initializeGallerySection(galleryManifest) {
   showAllChaptersButton.dataset.chapter = "all";
   showAllChaptersButton.setAttribute("role", "tab");
   showAllChaptersButton.setAttribute("aria-selected", "true");
-  showAllChaptersButton.textContent = "Todas / All";
+  showAllChaptersButton.textContent = "Todas";
   galleryFiltersElement.append(showAllChaptersButton);
 
   for (const chapter of chapters) {
