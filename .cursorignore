@@ -1,0 +1,36 @@
+# Cursor index exclusions — source & config only, not generated noise or binaries.
+
+# --- Dependencies ---
+node_modules/
+**/node_modules/
+
+# --- Build & deploy output ---
+dist/
+build/
+.firebase/
+
+# --- Lockfiles (large, rarely useful for coding) ---
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# --- Photographer originals (~1GB local; gitignored) ---
+assets/
+
+# --- Deployed gallery (270+ WebP; HTML/JS reference paths, not image bytes) ---
+web/assets/images/
+
+# --- Secrets ---
+.env
+.env.*
+!.env.example
+
+# --- OS & editor noise ---
+.DS_Store
+Thumbs.db
+*.log
+.idea/
+.vscode/
+
+# --- Git internals ---
+.git/
