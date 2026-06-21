@@ -5,3 +5,5 @@ package-lock.json
 
 # Tracked gallery (270+ WebP) — paths live in HTML/JS, not image bytes
 web/assets/images/
+
+
